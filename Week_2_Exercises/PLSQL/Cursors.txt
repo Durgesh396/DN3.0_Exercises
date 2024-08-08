@@ -1,0 +1,42 @@
+Exercise 6: Cursors
+
+* Scenario 1: Generate monthly statements for all customers.
+
+DECLARE
+    CURSOR c_Transactions IS
+        SELECT CustomerID, TransactionDate, Amount
+        FROM Transactions
+        WHERE TransactionDate BETWEEN TRUNC(SYSDATE, 'MM') AND LAST_DAY(SYSDATE);
+BEGIN
+    FOR transaction IN c_Transactions LOOP
+        DBMS_OUTPUT.PUT_LINE('Customer ID: ' || transaction.CustomerID || ', Date: ' || transaction.TransactionDate || ', Amount: ' || transaction.Amount);
+    END LOOP;
+END;
+
+* Scenario 2: Apply annual fee to all accounts.
+
+DECLARE
+    CURSOR c_Accounts IS
+        SELECT AccountID, Balance FROM Accounts;
+BEGIN
+    FOR account IN c_Accounts LOOP
+        UPDATE Accounts
+        SET Balance = Balance - 50
+        WHERE AccountID = account.AccountID;
+    END LOOP;
+    COMMIT;
+END;
+
+* Scenario 3: Update loan interest rates.
+
+DECLARE
+    CURSOR c_Loans IS
+        SELECT LoanID, InterestRate FROM Loans;
+BEGIN
+    FOR loan IN c_Loans LOOP
+        UPDATE Loans
+        SET InterestRate = loan.InterestRate + 0.5
+        WHERE LoanID = loan.LoanID;
+    END LOOP;
+    COMMIT;
+END;

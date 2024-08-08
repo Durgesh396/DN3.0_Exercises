@@ -1,0 +1,74 @@
+Exercise 2: Error Handling
+
+* Scenario 1: Safe fund transfer between accounts.
+
+CREATE OR REPLACE PROCEDURE SafeTransferFunds (
+    p_FromAccountID IN NUMBER,
+    p_ToAccountID IN NUMBER,
+    p_Amount IN NUMBER
+) IS
+BEGIN
+    UPDATE Accounts
+    SET Balance = Balance - p_Amount
+    WHERE AccountID = p_FromAccountID AND Balance >= p_Amount;
+
+    IF SQL%ROWCOUNT = 0 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Insufficient funds in source account.');
+    END IF;
+
+    UPDATE Accounts
+    SET Balance = Balance + p_Amount
+    WHERE AccountID = p_ToAccountID;
+
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        INSERT INTO ErrorLog (ErrorMessage, ErrorDate)
+        VALUES (SQLERRM, SYSDATE);
+        RAISE;
+END;
+
+* Scenario 2: Update salary with exception handling.
+
+CREATE OR REPLACE PROCEDURE UpdateSalary (
+    p_EmployeeID IN NUMBER,
+    p_Percentage IN NUMBER
+) IS
+BEGIN
+    UPDATE Employees
+    SET Salary = Salary * (1 + p_Percentage / 100)
+    WHERE EmployeeID = p_EmployeeID;
+
+    IF SQL%ROWCOUNT = 0 THEN
+        RAISE_APPLICATION_ERROR(-20002, 'Employee ID does not exist.');
+    END IF;
+
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        INSERT INTO ErrorLog (ErrorMessage, ErrorDate)
+        VALUES (SQLERRM, SYSDATE);
+        RAISE;
+END;
+
+* Scenario 3: Add new customer with exception handling.
+
+CREATE OR REPLACE PROCEDURE AddNewCustomer (
+    p_CustomerID IN NUMBER,
+    p_Name IN VARCHAR2,
+    p_Age IN NUMBER
+) IS
+BEGIN
+    INSERT INTO Customers (CustomerID, Name, Age)
+    VALUES (p_CustomerID, p_Name, p_Age);
+
+    COMMIT;
+EXCEPTION
+    WHEN DUP_VAL_ON_INDEX THEN
+        INSERT INTO ErrorLog (ErrorMessage, ErrorDate)
+        VALUES ('Customer with ID ' || p_CustomerID || ' already exists.', SYSDATE);
+        RAISE_APPLICATION_ERROR(-20003, 'Customer already exists.');
+END;
+

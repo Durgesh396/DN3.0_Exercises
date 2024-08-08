@@ -1,0 +1,31 @@
+Exercise 1 : Control Structures
+
+* Scenario 1: Apply a discount to loan interest rates for customers above 60 years old.
+
+BEGIN
+    FOR customer IN (SELECT CustomerID, Age, LoanInterestRate FROM Customers WHERE Age > 60) LOOP
+        UPDATE Customers
+        SET LoanInterestRate = LoanInterestRate - 1
+        WHERE CustomerID = customer.CustomerID;
+    END LOOP;
+    COMMIT;
+END;
+
+* Scenario 2: Promote customers to VIP status based on their balance.
+
+BEGIN
+    FOR customer IN (SELECT CustomerID, Balance FROM Customers WHERE Balance > 10000) LOOP
+        UPDATE Customers
+        SET IsVIP = TRUE
+        WHERE CustomerID = customer.CustomerID;
+    END LOOP;
+    COMMIT;
+END;
+
+* Scenario 3: Send reminders to customers with loans due within the next 30 days
+
+BEGIN
+    FOR loan IN (SELECT CustomerID, LoanDueDate FROM Loans WHERE LoanDueDate BETWEEN SYSDATE AND SYSDATE + 30) LOOP
+        DBMS_OUTPUT.PUT_LINE('Reminder: Your loan is due on ' || loan.LoanDueDate || ' - Customer ID: ' || loan.CustomerID);
+    END LOOP;
+END;

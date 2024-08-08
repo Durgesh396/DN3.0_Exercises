@@ -1,0 +1,50 @@
+Exercise 3: Stored Procedures
+
+* Scenario 1: Process monthly interest for savings accounts.
+
+CREATE OR REPLACE PROCEDURE ProcessMonthlyInterest IS
+BEGIN
+    UPDATE Accounts
+    SET Balance = Balance * 1.01
+    WHERE AccountType = 'Savings';
+
+    COMMIT;
+END;
+
+* Scenario 2: Update employee bonus.
+
+CREATE OR REPLACE PROCEDURE UpdateEmployeeBonus (
+    p_DepartmentID IN NUMBER,
+    p_BonusPercentage IN NUMBER
+) IS
+BEGIN
+    UPDATE Employees
+    SET Salary = Salary * (1 + p_BonusPercentage / 100)
+    WHERE DepartmentID = p_DepartmentID;
+
+    COMMIT;
+END;
+
+* Scenario 3: Transfer funds between accounts.
+
+CREATE OR REPLACE PROCEDURE TransferFunds (
+    p_FromAccountID IN NUMBER,
+    p_ToAccountID IN NUMBER,
+    p_Amount IN NUMBER
+) IS
+BEGIN
+    UPDATE Accounts
+    SET Balance = Balance - p_Amount
+    WHERE AccountID = p_FromAccountID AND Balance >= p_Amount;
+
+    IF SQL%ROWCOUNT = 0 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Insufficient funds in source account.');
+    END IF;
+
+    UPDATE Accounts
+    SET Balance = Balance + p_Amount
+    WHERE AccountID = p_ToAccountID;
+
+    COMMIT;
+END;
+

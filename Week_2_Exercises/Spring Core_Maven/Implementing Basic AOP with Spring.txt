@@ -1,0 +1,75 @@
+//Create a package com.library.aspect and add a class LoggingAspect.
+
+* package com.library.aspect;
+
+import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.springframework.stereotype.Component;
+
+@Aspect
+@Component
+public class LoggingAspect {
+
+    @Before("execution(* com.library.service.*.*(..))")
+    public void logBefore() {
+        System.out.println("Method execution starting...");
+    }
+
+    @After("execution(* com.library.service.*.*(..))")
+    public void logAfter() {
+        System.out.println("Method execution finished...");
+    }
+}
+
+//Define advice methods in LoggingAspect for logging before and after method execution.
+
+* <?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/aop
+                           http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- Enable component scanning for the com.library package -->
+    <context:component-scan base-package="com.library" />
+
+    <!-- Enable AspectJ auto-proxying -->
+    <aop:aspectj-autoproxy />
+
+    <!-- Define the BookRepository bean -->
+    <bean id="bookRepository" class="com.library.repository.BookRepository" />
+
+    <!-- Define the BookService bean with constructor injection -->
+    <bean id="bookService" class="com.library.service.BookService">
+        <constructor-arg ref="bookRepository" />
+    </bean>
+
+    <!-- Register the LoggingAspect -->
+    <bean id="loggingAspect" class="com.library.aspect.LoggingAspect" />
+</beans>
+
+//Test the Aspect.
+
+*  package com.library;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import com.library.service.BookService;
+
+public class LibraryManagementApplication {
+    public static void main(String[] args) {
+                ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+
+                BookService bookService = context.getBean(BookService.class);
+
+                bookService.manageBooks();
+    }
+}
+
+

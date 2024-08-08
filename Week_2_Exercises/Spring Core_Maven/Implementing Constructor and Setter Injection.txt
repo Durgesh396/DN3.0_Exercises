@@ -1,0 +1,71 @@
+//Configure Constructor Injection.
+
+*<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!-- Enable component scanning for the com.library package -->
+    <context:component-scan base-package="com.library" />
+
+    <!-- Define the BookRepository bean -->
+    <bean id="bookRepository" class="com.library.repository.BookRepository" />
+
+    <!-- Define the BookService bean with constructor injection -->
+    <bean id="bookService" class="com.library.service.BookService">
+        <constructor-arg ref="bookRepository" />
+    </bean>
+</beans>
+
+//Configure Setter Injection
+
+* package com.library.service;
+
+import com.library.repository.BookRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class BookService {
+    private BookRepository bookRepository;
+
+    // Constructor for constructor injection
+    @Autowired
+    public BookService(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
+    }
+
+    // Setter method for setter injection
+    @Autowired
+    public void setBookRepository(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
+    }
+
+    public void manageBooks() {
+        System.out.println("Managing books...");
+        bookRepository.getBooks();
+    }
+}
+
+//Test the Injection
+
+*package com.library;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import com.library.service.BookService;
+
+public class LibraryManagementApplication {
+    public static void main(String[] args) {
+        ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+
+        BookService bookService = context.getBean(BookService.class);
+
+        bookService.manageBooks();
+    }
+}
+
