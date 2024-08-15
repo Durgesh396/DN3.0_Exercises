@@ -1,0 +1,123 @@
+Exercise 8: Employee Management System - Creating Projections:
+
+1. Interface-Based Projections:
+
+Employee Projection Interface:
+
+package com.example.employeemanagementsystem.projection;
+
+public interface EmployeeProjection {
+
+    Long getId();
+    String getName();
+    String getEmail();
+}
+
+Employee Repository with Projection:
+
+package com.example.employeemanagementsystem.repository;
+
+import com.example.employeemanagementsystem.model.Employee;
+import com.example.employeemanagementsystem.projection.EmployeeProjection;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
+
+public interface EmployeeRepository extends JpaRepository<Employee, Long> {
+
+    @Query("SELECT e FROM Employee e")
+    List<EmployeeProjection> findAllEmployeesWithProjection();
+}
+
+2. Class-Based Projections:
+
+Employee DTO(Data Transfer Object) Class:
+
+package com.example.employeemanagementsystem.dto;
+
+public class EmployeeDTO {
+
+    private Long id;
+    private String name;
+    private String email;
+
+    public EmployeeDTO(Long id, String name, String email) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+    }
+
+    // Getters and setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+}
+
+Employee Repository with Class-Based Projection:
+
+package com.example.employeemanagementsystem.repository;
+
+import com.example.employeemanagementsystem.dto.EmployeeDTO;
+import com.example.employeemanagementsystem.model.Employee;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
+
+public interface EmployeeRepository extends JpaRepository<Employee, Long> {
+
+    @Query("SELECT new com.example.employeemanagementsystem.dto.EmployeeDTO(e.id, e.name, e.email) FROM Employee e")
+    List<EmployeeDTO> findAllEmployeesWithDTO();
+}
+
+Employee Projection with @Value:
+
+package com.example.employeemanagementsystem.projection;
+
+import org.springframework.beans.factory.annotation.Value;
+
+public interface EmployeeProjection {
+
+    @Value("#{target.name + ' (' + target.email + ')'}")
+    String getNameWithEmail();
+}
+
+Employee Repository with @Value Projection:
+
+package com.example.employeemanagementsystem.repository;
+
+import com.example.employeemanagementsystem.projection.EmployeeProjection;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
+
+public interface EmployeeRepository extends JpaRepository<Employee, Long> {
+
+    @Query("SELECT e FROM Employee e")
+    List<EmployeeProjection> findAllEmployeesWithCustomProjection();
+}
+
+
+

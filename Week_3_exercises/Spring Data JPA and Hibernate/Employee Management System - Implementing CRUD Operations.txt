@@ -1,0 +1,154 @@
+Exercise 4: Employee Management System - Implementing CRUD Operations.
+
+1.Implementing CRUD Operations Using JPA Repository:
+
+* Create: Use the save() method.
+* Read: Use methods like findById(), findAll(), or custom query methods.
+* Update: Use the save() method again, as it will update the entity if it already exists.
+* Delete: Use the deleteById() or delete() method.
+
+2.Creating RESTful Endpoints:
+
+Employee Controller:
+
+package com.example.employeemanagementsystem.controller;
+
+import com.example.employeemanagementsystem.model.Employee;
+import com.example.employeemanagementsystem.repository.EmployeeRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/api/employees")
+public class EmployeeController {
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+   
+    @PostMapping
+    public Employee createEmployee(@RequestBody Employee employee) {
+        return employeeRepository.save(employee);
+    }
+
+    
+    @GetMapping
+    public List<Employee> getAllEmployees() {
+        return employeeRepository.findAll();
+    }
+
+   
+    @GetMapping("/{id}")
+    public ResponseEntity<Employee> getEmployeeById(@PathVariable Long id) {
+        Optional<Employee> employee = employeeRepository.findById(id);
+        return employee.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+   
+    @PutMapping("/{id}")
+    public ResponseEntity<Employee> updateEmployee(@PathVariable Long id, @RequestBody Employee employeeDetails) {
+        Optional<Employee> employeeOptional = employeeRepository.findById(id);
+        if (employeeOptional.isPresent()) {
+            Employee employee = employeeOptional.get();
+            employee.setName(employeeDetails.getName());
+            employee.setEmail(employeeDetails.getEmail());
+            employee.setDepartment(employeeDetails.getDepartment());
+            Employee updatedEmployee = employeeRepository.save(employee);
+            return ResponseEntity.ok(updatedEmployee);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
+        Optional<Employee> employee = employeeRepository.findById(id);
+        if (employee.isPresent()) {
+            employeeRepository.delete(employee.get());
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+}
+
+Annotations:
+* @RestController: Marks the class as a REST controller.
+* @RequestMapping("/api/employees"): Base URL for all employee-related operations.
+* @Autowired: Injects the EmployeeRepository dependency.
+* @PostMapping, @GetMapping, @PutMapping, @DeleteMapping: Define HTTP methods for create, read, update, and delete operations.
+
+Department Controller:
+
+package com.example.employeemanagementsystem.controller;
+
+import com.example.employeemanagementsystem.model.Department;
+import com.example.employeemanagementsystem.repository.DepartmentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/api/departments")
+public class DepartmentController {
+
+    @Autowired
+    private DepartmentRepository departmentRepository;
+
+        @PostMapping
+    public Department createDepartment(@RequestBody Department department) {
+        return departmentRepository.save(department);
+    }
+
+    
+    @GetMapping
+    public List<Department> getAllDepartments() {
+        return departmentRepository.findAll();
+    }
+
+   
+    @GetMapping("/{id}")
+    public ResponseEntity<Department> getDepartmentById(@PathVariable Long id) {
+        Optional<Department> department = departmentRepository.findById(id);
+        return department.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    
+    @PutMapping("/{id}")
+    public ResponseEntity<Department> updateDepartment(@PathVariable Long id, @RequestBody Department departmentDetails) {
+        Optional<Department> departmentOptional = departmentRepository.findById(id);
+        if (departmentOptional.isPresent()) {
+            Department department = departmentOptional.get();
+            department.setName(departmentDetails.getName());
+            Department updatedDepartment = departmentRepository.save(department);
+            return ResponseEntity.ok(updatedDepartment);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+   
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteDepartment(@PathVariable Long id) {
+        Optional<Department> department = departmentRepository.findById(id);
+        if (department.isPresent()) {
+            departmentRepository.delete(department.get());
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+}
+
+
+

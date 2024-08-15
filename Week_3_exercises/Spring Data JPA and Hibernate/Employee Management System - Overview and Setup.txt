@@ -1,0 +1,49 @@
+Exercise 1: Employee Management System - Overview and Setup.
+
+1.Creating a Spring Boot Project:
+
+* Initialize a new Spring Boot project named EmployeeManagementSystem.
+* Add dependencies: Spring Data JPA, H2 Database, Spring Web, Lombok.
+
+2.Configuring Application Properties:
+
+spring.datasource.url=jdbc:h2:mem:testdb
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=password
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+
+3.Running the Project:
+
+package com.example.demo;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class DemoApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(DemoApplication.class, args);
+	}
+
+}
+
+4.Test the Application:
+
+package com.example.demo;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class DemoApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}
+
+
+

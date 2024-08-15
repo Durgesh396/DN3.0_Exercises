@@ -1,0 +1,86 @@
+Exercise 10: Employee Management System - Hibernate-Specific Features:
+
+1. Hibernate-Specific Annotations:
+
+@DynamicInsert and @DynamicUpdate:
+
+@Entity
+@Table(name = "employees")
+@DynamicInsert
+@DynamicUpdate
+public class Employee {
+    }
+
+@BatchSize:
+
+@Entity
+@Table(name = "employees")
+@BatchSize(size = 10)
+public class Employee {
+   }
+
+@Fetch:
+
+@ManyToOne(fetch = FetchType.LAZY)
+@JoinColumn(name = "department_id")
+private Department department;
+
+@SQLInsert and @SQLUpdate:
+
+@Entity
+@Table(name = "employees")
+@SQLInsert(sql = "INSERT INTO employees (name, email) VALUES (?, ?)")
+@SQLUpdate(sql = "UPDATE employees SET name = ?, email = ? WHERE id = ?")
+public class Employee {
+   
+}
+
+2. Configuring Hibernate Dialect and Properties:
+
+Configuring Hibernate Dialect:
+
+# MySQL Dialect
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL5Dialect
+
+# PostgreSQL Dialect
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+
+Additional Hibernate Properties:
+
+* spring.jpa.hibernate.ddl-auto=update
+* spring.jpa.show-sql=true
+* spring.jpa.properties.hibernate.format_sql=true
+* spring.jpa.properties.hibernate.use_sql_comments=true
+
+3. Batch Processing:
+
+Enabling Batch Processing:
+
+# Batch size configuration
+spring.jpa.properties.hibernate.jdbc.batch_size=30
+spring.jpa.properties.hibernate.order_inserts=true
+spring.jpa.properties.hibernate.order_updates=true
+
+Example of Batch Insert:
+
+@Service
+public class EmployeeService {
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Transactional
+    public void batchInsertEmployees(List<Employee> employees) {
+        int batchSize = 30;
+        for (int i = 0; i < employees.size(); i++) {
+            employeeRepository.save(employees.get(i));
+            if (i % batchSize == 0 && i > 0) {
+                // Flush a batch of inserts and release memory
+                employeeRepository.flush();
+                employeeRepository.clear();
+            }
+        }
+    }
+}
+
+
